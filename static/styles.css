@@ -502,4 +502,49 @@ button:active,
   .hero h2 {
     font-size: 30px;
   }
+
+  .layout {
+    padding: 0 6vw 60px;
+  }
+
+  .auth-card,
+  .menu-section,
+  .order-section,
+  .admin-panel {
+    padding: 18px;
+  }
+
+  .menu-card {
+    padding: 16px;
+  }
+
+  .hero-actions,
+  .menu-card-actions,
+  .cart-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  button,
+  .button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .topbar {
+    padding: 16px 6vw;
+  }
+
+  h1 {
+    font-size: 22px;
+  }
+
+  .hero h2 {
+    font-size: 26px;
+  }
+
+  .menu-grid {
+    grid-template-columns: 1fr;
+  }
 }
