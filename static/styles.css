@@ -542,6 +542,11 @@ button:active,
     padding: 16px 6vw;
   }
 
+  .auth-status {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
   h1 {
     font-size: 22px;
   }
@@ -550,7 +555,36 @@ button:active,
     font-size: 26px;
   }
 
+  .hero-actions {
+    margin: 14px 0;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
   .menu-grid {
     grid-template-columns: 1fr;
+  }
+
+  .menu-card-bottom,
+  .cart-row,
+  .order-card-header,
+  .modal-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .cart-actions,
+  .order-card-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .modal-content {
+    padding: 18px;
+    max-height: 85vh;
+    overflow-y: auto;
   }
 }
