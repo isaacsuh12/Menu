@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Menu Studio</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <div class="bg-layer"></div>
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark"></div>
+        <div>
+          <p class="eyebrow">menu studio</p>
+          <h1>Starline Coffee</h1>
+        </div>
+      </div>
+      <div class="auth-status">
+        <a class="pill" href="#menu">Menu</a>
+        <a class="pill" href="#order">Order</a>
+        <span id="userEmail">Guest</span>
+        <button id="logoutBtn" class="ghost" hidden>Logout</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="hero">
+        <div>
+          <h2>Curated espresso, iced layers, and custom builds.</h2>
+          <p>
+            Choose a drink, tune every detail, and send it to the bar. Master
+            accounts can craft the menu in real time.
+          </p>
+          <div class="hero-actions">
+            <a class="button" href="#menu">Explore menu</a>
+            <a id="masterToolsLink" class="button ghost" href="#adminPanel">Master tools</a>
+          </div>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <span>Drinks</span>
+              <strong>24+</strong>
+            </div>
+            <div class="stat-card">
+              <span>Custom picks</span>
+              <strong>300+</strong>
+            </div>
+            <div class="stat-card">
+              <span>Avg build</span>
+              <strong>45s</strong>
+            </div>
+          </div>
+        </div>
+        <div class="hero-panel">
+          <div id="authCard" class="auth-card">
+            <h3>Sign in</h3>
+            <form id="loginForm">
+              <input type="email" name="email" placeholder="Email" required />
+              <input type="password" name="password" placeholder="Password" required />
+              <button type="submit">Login</button>
+            </form>
+            <button id="becomeMasterBtn" class="ghost">Enable master mode</button>
+            <div class="divider"></div>
+            <h3>Create account</h3>
+            <form id="registerForm">
+              <input type="email" name="email" placeholder="Email" required />
+              <input type="password" name="password" placeholder="Password" required />
+              <button type="submit" class="ghost">Register</button>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <section id="menu" class="menu-section">
+        <div class="section-title">
+          <h3>Menu</h3>
+          <p>Tap a drink to customize with layered dropdowns.</p>
+        </div>
+        <div id="menuGrid" class="menu-grid"></div>
+      </section>
+
+      <section id="order" class="order-section">
+        <div class="section-title">
+          <h3>Your Order</h3>
+          <p>Stack custom drinks and place one order.</p>
+        </div>
+        <label class="field order-name">
+          Order name
+          <input id="orderName" type="text" placeholder="e.g. Isaac" required />
+        </label>
+        <div id="cartList" class="cart-list"></div>
+        <div class="cart-footer">
+          <span id="cartTotal">Total: $0.00</span>
+          <button id="placeOrderBtn">Place Order</button>
+        </div>
+      </section>
+
+      <section id="masterOrders" class="order-section" hidden>
+        <div class="section-title">
+          <h3>Incoming Orders</h3>
+          <p>Live orders from customers.</p>
+        </div>
+        <div id="ordersList" class="orders-list"></div>
+      </section>
+
+      <section id="adminPanel" class="admin-panel" hidden>
+        <div class="section-title">
+          <h3>Master Menu Builder</h3>
+          <p>Create new drinks with option groups in JSON.</p>
+        </div>
+        <form id="menuForm" class="menu-form">
+          <input name="name" placeholder="Drink name" required />
+          <input name="category" placeholder="Category" required />
+          <input name="price_cents" type="number" placeholder="Base price (cents)" required />
+          <input name="description" placeholder="Description" />
+          <textarea name="options" rows="6" placeholder='Options JSON e.g. [{"name":"Size","required":true,"choices":[{"label":"Tall","price_cents":0}]}]'></textarea>
+          <button id="menuSubmitBtn" type="submit">Add to Menu</button>
+        </form>
+        <div class="menu-form-actions">
+          <button id="cancelEditBtn" class="ghost" hidden>Cancel edit</button>
+        </div>
+        <button id="clearMenuBtn" class="ghost">Clear menu</button>
+        <p class="hint">Tip: Leave options empty for a simple drink.</p>
+      </section>
+    </main>
+
+    <div id="modal" class="modal" hidden>
+      <div class="modal-content">
+        <button id="closeModal" class="ghost">Close</button>
+        <div id="modalBody"></div>
+      </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>
