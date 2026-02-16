@@ -250,6 +250,15 @@ def list_orders(
     return out
 
 
+@app.delete("/orders")
+def clear_orders(
+    db: Session = Depends(get_db),
+    _: models.User = Depends(auth.require_master),
+):
+    crud.clear_orders(db)
+    return {"ok": True}
+
+
 @app.post("/orders/{order_id}/served")
 def mark_order_served(
     order_id: int,
@@ -261,4 +270,27 @@ def mark_order_served(
         raise HTTPException(status_code=404, detail="Order not found")
     order.served = True
     db.commit()
+    return {"ok": True}
+
+
+@app.get("/admin/users", response_model=list[schemas.UserOut])
+def list_users(
+    db: Session = Depends(get_db),
+    _: models.User = Depends(auth.require_master),
+):
+    return crud.list_users(db)
+
+
+@app.delete("/admin/users/{user_id}")
+def delete_user(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(auth.require_master),
+):
+    if current_user.id == user_id:
+        raise HTTPException(status_code=400, detail="Cannot delete your own account")
+    user = crud.get_user(db, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    crud.delete_user(db, user)
     return {"ok": True}

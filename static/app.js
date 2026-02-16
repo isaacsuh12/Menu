@@ -23,11 +23,15 @@ const menuSubmitBtn = document.getElementById("menuSubmitBtn");
 const cancelEditBtn = document.getElementById("cancelEditBtn");
 const masterOrdersPanel = document.getElementById("masterOrders");
 const ordersList = document.getElementById("ordersList");
+const clearOrdersBtn = document.getElementById("clearOrdersBtn");
+const masterUsersPanel = document.getElementById("masterUsers");
+const usersList = document.getElementById("usersList");
 
 let menuItems = [];
 let cart = [];
 let currentUser = null;
 let editingItemId = null;
+let ordersRefreshTimer = null;
 
 function formatPrice(cents) {
   return `$${(cents / 100).toFixed(2)}`;
@@ -333,6 +337,70 @@ async function loadOrders() {
   renderOrders(orders);
 }
 
+function renderUsers(users) {
+  usersList.innerHTML = "";
+  if (!users.length) {
+    usersList.innerHTML = "<p>No accounts yet.</p>";
+    return;
+  }
+  users.forEach((user) => {
+    const row = document.createElement("div");
+    row.className = "order-card";
+    row.innerHTML = `
+      <div class="order-card-header">
+        <div>
+          <strong>${user.email}</strong>
+          <span>${user.is_master ? "Master" : "User"}</span>
+        </div>
+        <div class="order-card-actions">
+          <button class="ghost" data-action="delete" data-id="${user.id}">Delete</button>
+        </div>
+      </div>
+    `;
+    const deleteBtn = row.querySelector("[data-action=delete]");
+    if (deleteBtn) {
+      deleteBtn.addEventListener("click", async () => {
+        if (!confirm(`Delete account for ${user.email}?`)) {
+          return;
+        }
+        try {
+          await apiFetch(`/admin/users/${user.id}`, { method: "DELETE" });
+          await loadUsers();
+        } catch (error) {
+          alert(error.message);
+        }
+      });
+    }
+    usersList.appendChild(row);
+  });
+}
+
+async function loadUsers() {
+  if (!currentUser?.is_master) {
+    return;
+  }
+  const users = await apiFetch("/admin/users");
+  renderUsers(users);
+}
+
+function startOrdersRefresh() {
+  if (ordersRefreshTimer) {
+    return;
+  }
+  ordersRefreshTimer = setInterval(() => {
+    if (currentUser?.is_master) {
+      loadOrders();
+    }
+  }, 5000);
+}
+
+function stopOrdersRefresh() {
+  if (ordersRefreshTimer) {
+    clearInterval(ordersRefreshTimer);
+    ordersRefreshTimer = null;
+  }
+}
+
 async function refreshUser() {
   const token = getToken();
   if (!token) {
@@ -341,8 +409,10 @@ async function refreshUser() {
     logoutBtn.hidden = true;
     adminPanel.hidden = true;
     masterOrdersPanel.hidden = true;
+    masterUsersPanel.hidden = true;
     authCard.hidden = false;
     masterToolsLink.hidden = true;
+    stopOrdersRefresh();
     return;
   }
   try {
@@ -351,11 +421,16 @@ async function refreshUser() {
     logoutBtn.hidden = false;
     adminPanel.hidden = !currentUser.is_master;
     masterOrdersPanel.hidden = !currentUser.is_master;
+    masterUsersPanel.hidden = !currentUser.is_master;
     authCard.hidden = true;
     masterToolsLink.hidden = !currentUser.is_master;
     renderMenu();
     if (currentUser.is_master) {
       await loadOrders();
+      await loadUsers();
+      startOrdersRefresh();
+    } else {
+      stopOrdersRefresh();
     }
   } catch (error) {
     setToken(null);
@@ -364,8 +439,10 @@ async function refreshUser() {
     logoutBtn.hidden = true;
     adminPanel.hidden = true;
     masterOrdersPanel.hidden = true;
+    masterUsersPanel.hidden = true;
     authCard.hidden = false;
     masterToolsLink.hidden = true;
+    stopOrdersRefresh();
     renderMenu();
   }
 }
@@ -476,6 +553,18 @@ placeOrderBtn.addEventListener("click", async () => {
     orderNameInput.value = "";
     await loadOrders();
     alert("Order placed!");
+  } catch (error) {
+    alert(error.message);
+  }
+});
+
+clearOrdersBtn.addEventListener("click", async () => {
+  if (!confirm("Clear all orders? This cannot be undone.")) {
+    return;
+  }
+  try {
+    await apiFetch("/orders", { method: "DELETE" });
+    await loadOrders();
   } catch (error) {
     alert(error.message);
   }

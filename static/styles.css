@@ -336,6 +336,10 @@ button:active,
   gap: 12px;
 }
 
+#clearOrdersBtn {
+  margin-bottom: 12px;
+}
+
 .order-card-actions {
   display: flex;
   align-items: center;

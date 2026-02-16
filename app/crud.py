@@ -95,6 +95,20 @@ def clear_menu(db: Session):
     db.commit()
 
 
+def list_users(db: Session):
+    return db.query(models.User).order_by(models.User.id).all()
+
+
+def delete_user(db: Session, user: models.User):
+    db.delete(user)
+    db.commit()
+
+
+def clear_orders(db: Session):
+    db.query(models.Order).delete()
+    db.commit()
+
+
 def get_menu_item(db: Session, item_id: int):
     return db.query(models.MenuItem).filter(models.MenuItem.id == item_id).first()
 
