@@ -179,6 +179,7 @@ def compute_order_items(db: Session, items_in: list[schemas.OrderItemIn]):
             extra += price
         line_total = (menu_item.price_cents + extra) * item_in.quantity
         total += line_total
+        notes = (item_in.notes or "").strip()
         items.append(
             {
                 "menu_item_id": menu_item.id,
@@ -186,6 +187,7 @@ def compute_order_items(db: Session, items_in: list[schemas.OrderItemIn]):
                 "quantity": item_in.quantity,
                 "base_price_cents": menu_item.price_cents,
                 "options": selected,
+                "notes": notes if notes else None,
                 "line_total_cents": line_total,
             }
         )

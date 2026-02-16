@@ -154,6 +154,10 @@ function openModal(item) {
     <p>${item.description || ""}</p>
     <div class="options"></div>
     <label class="field">
+      Other info
+      <textarea rows="3" placeholder="Extra notes, custom requests, allergies"></textarea>
+    </label>
+    <label class="field">
       Quantity
       <input type="number" min="1" value="1" />
     </label>
@@ -163,6 +167,7 @@ function openModal(item) {
     </div>
   `;
   const optionsContainer = wrapper.querySelector(".options");
+  const notesInput = wrapper.querySelector("textarea");
   const quantityInput = wrapper.querySelector("input[type=number]");
   const priceLabel = wrapper.querySelector("#modalPrice");
 
@@ -219,11 +224,13 @@ function openModal(item) {
 
   wrapper.querySelector("#addToCart").addEventListener("click", () => {
     const quantity = Number(quantityInput.value) || 1;
+    const notes = notesInput.value.trim();
     cart.push({
       menu_item_id: item.id,
       name: item.name,
       quantity,
       selected_options: { ...selectedOptions },
+      notes: notes || null,
       base_price_cents: item.price_cents,
       options: item.options || [],
     });
@@ -245,6 +252,7 @@ function renderCart() {
   cart.forEach((item, index) => {
     let extras = 0;
     const optionLines = [];
+    const extraLines = [];
     if (item.selected_options && item.options) {
       item.options.forEach((group) => {
         const label = item.selected_options[group.name];
@@ -256,6 +264,9 @@ function renderCart() {
         }
       });
     }
+    if (item.notes) {
+      extraLines.push(`Other: ${item.notes}`);
+    }
     const lineTotal = (item.base_price_cents + extras) * item.quantity;
     total += lineTotal;
     const row = document.createElement("div");
@@ -264,6 +275,7 @@ function renderCart() {
       <div>
         <strong>${item.name}</strong>
         <p>${optionLines.join(" | ")}</p>
+        ${extraLines.length ? `<p>${extraLines.join(" | ")}</p>` : ""}
         <span>Qty ${item.quantity}</span>
       </div>
       <div class="cart-actions">
@@ -296,8 +308,20 @@ function renderOrders(orders) {
     card.className = `order-card${order.served ? " served" : ""}`;
     const createdAt = new Date(order.created_at).toLocaleString();
     const items = order.items
-      .map((item) => `• ${item.quantity}x ${item.name}`)
-      .join("<br />");
+      .map((item) => {
+        const options = (item.options || [])
+          .map((opt) => `${opt.group}: ${opt.label}`)
+          .join(" | ");
+        const notes = item.notes ? `Other: ${item.notes}` : "";
+        const details = [options, notes].filter(Boolean).join(" | ");
+        return `
+          <div class="order-item">
+            <strong>${item.quantity}x ${item.name}</strong>
+            ${details ? `<p>${details}</p>` : ""}
+          </div>
+        `;
+      })
+      .join("");
     const servedButton = order.served
       ? "<span class=\"served-badge\">Served</span>"
       : `<button class=\"ghost\" data-action=\"served\" data-id=\"${order.id}\">Order served</button>`;
@@ -310,9 +334,10 @@ function renderOrders(orders) {
         <div class="order-card-actions">
           <span>${formatPrice(order.total_cents)}</span>
           ${servedButton}
+          <button class="ghost" data-action="toggle">Details</button>
         </div>
       </div>
-      <div class="order-card-body">${items}</div>
+      <div class="order-card-body" hidden>${items}</div>
     `;
     const serveBtn = card.querySelector("[data-action=served]");
     if (serveBtn) {
@@ -323,6 +348,14 @@ function renderOrders(orders) {
         } catch (error) {
           alert(error.message);
         }
+      });
+    }
+    const toggleBtn = card.querySelector("[data-action=toggle]");
+    const details = card.querySelector(".order-card-body");
+    if (toggleBtn && details) {
+      toggleBtn.addEventListener("click", () => {
+        details.hidden = !details.hidden;
+        toggleBtn.textContent = details.hidden ? "Details" : "Hide";
       });
     }
     ordersList.appendChild(card);
@@ -350,7 +383,7 @@ function renderUsers(users) {
       <div class="order-card-header">
         <div>
           <strong>${user.email}</strong>
-          <span>${user.is_master ? "Master" : "User"}</span>
+          <span>ID ${user.id} • ${user.is_master ? "Master" : "User"}</span>
         </div>
         <div class="order-card-actions">
           <button class="ghost" data-action="delete" data-id="${user.id}">Delete</button>

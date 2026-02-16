@@ -58,6 +58,7 @@ class OrderItemIn(BaseModel):
     menu_item_id: int
     quantity: int = Field(default=1, ge=1)
     selected_options: Optional[Dict[str, str]] = None
+    notes: Optional[str] = Field(default=None, max_length=500)
 
 
 class OrderCreate(BaseModel):
